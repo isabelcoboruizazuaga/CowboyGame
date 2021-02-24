@@ -4,9 +4,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
+import com.example.cowboygame.BD.BDController;
+import com.example.cowboygame.BD.BDPlayer;
 import com.example.cowboygame.Models.Player;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -18,18 +21,26 @@ public class PlayerSelection extends AppCompatActivity {
     RecyclerView recView;
     FloatingActionButton fab_newPlayer;
 
+    BDController database;
+    BDPlayer bdPlayer;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player_selection);
 
+
         fab_newPlayer= findViewById(R.id.fab_newPlayer);
         fab_newPlayer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //startActivity(new Intent(getContext(), MainActivity.class));
+                startActivity(new Intent(getBaseContext(), NewPlayer.class));
             }
         });
+
+        //Database initialization
+        database= new BDController(this);
+        bdPlayer=new BDPlayer(this);
 
         //RecyclerView initialization
         recView = findViewById(R.id.rv_Store);
@@ -38,9 +49,8 @@ public class PlayerSelection extends AppCompatActivity {
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         recView.setLayoutManager(layoutManager);
 
-        players = new ArrayList<Player>();
-
-        Player p1= new Player("manolo","p1@gmail.com","12345");
+        fillRecycler();
+        /*Player p1= new Player("manolo","p1@gmail.com","12345");
         players.add(p1);
          p1= new Player("sdsasd","p1@gmail.com","12345");
         players.add(p1);
@@ -53,7 +63,23 @@ public class PlayerSelection extends AppCompatActivity {
          p1= new Player("22222","p1@sddsa.com","123123");
         players.add(p1);
          p1= new Player("3333","p1@sad.com","12345");
-        players.add(p1);
+        players.add(p1);*/
+
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        fillRecycler();
+    }
+
+    public void fillRecycler(){
+        players= bdPlayer.obtainPlayers();
+        for (int i=0; i<players.size();i++){
+
+            System.out.println(players.get(i).getEmail());
+        }
 
         //Assignment of the Recycler View adapter with the user list
         AdapterPlayers adapter = new AdapterPlayers(players);

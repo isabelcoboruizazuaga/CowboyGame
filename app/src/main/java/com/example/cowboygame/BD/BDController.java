@@ -29,7 +29,7 @@ public class BDController extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(create_table_players);
-        db.execSQL(create_table_games);
+        //db.execSQL(create_table_games);
     }
 
     @Override
