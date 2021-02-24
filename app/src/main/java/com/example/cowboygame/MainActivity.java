@@ -7,12 +7,15 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.Display;
 import android.view.Window;
 import android.view.WindowManager;
 
 public class MainActivity extends AppCompatActivity{
+    //Music
+    MediaPlayer mySong;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,5 +34,15 @@ public class MainActivity extends AppCompatActivity{
         //Game creation
         GameView gv= new GameView(this,width,height);
         setContentView(gv);
+
+        mySong= MediaPlayer.create(MainActivity.this,R.raw.song);
+        mySong.start();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mySong.release();
+        finish();
     }
 }

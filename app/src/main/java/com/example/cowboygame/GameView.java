@@ -12,19 +12,24 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.MediaPlayer;
 import android.os.CountDownTimer;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import java.io.ObjectStreamException;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.List;
 
 public class GameView extends SurfaceView implements SensorEventListener {
+    //Score
+    Paint paint= new Paint();
+    private int score=0;
     //Timer variables
     private CountDownTimer countDownTimer;
-    private long timeleftinMilliseconds= 600000;
+    private long timeleftinMilliseconds= 30000;//180000;
     private boolean timeFlowing;
     private String timeLeft;
     //Images and sizes
@@ -35,9 +40,11 @@ public class GameView extends SurfaceView implements SensorEventListener {
     private List<Sprite> sprites = new ArrayList<Sprite>();
     private List<TempSprite> temps = new ArrayList<TempSprite>();
     private long lastClick;
+    private long timeCreationInMilliseconds;
 
     public GameView(Context context,float width, float height) {
         super(context);
+        createPaint();
         //Time initialization
         startStop();
         //Height and width assignation
@@ -65,6 +72,7 @@ public class GameView extends SurfaceView implements SensorEventListener {
             public void surfaceCreated(SurfaceHolder holder) {
                 //Sprites creation and sprites thread created
                 createSprites();
+                timeCreationInMilliseconds=timeleftinMilliseconds;
                 gameLoopThread.setRunning(true);
                 gameLoopThread.start();
             }
@@ -96,13 +104,16 @@ public class GameView extends SurfaceView implements SensorEventListener {
         return new Sprite(this, bmp);
     }
 
+    //Paints initialization
+    private void createPaint(){
+        //Timer paint
+        paint.setColor(getResources().getColor(R.color.white));
+        paint.setTextSize(50);
+    }
+
     //Draw method
     @Override
     protected void onDraw(Canvas canvas) {
-        //Timer paint
-        Paint paint= new Paint();
-        paint.setColor(getResources().getColor(R.color.white));
-        paint.setTextSize(30);
         //Background
         canvas.drawColor(Color.BLACK);
         //Sprites drawing and movement
@@ -114,10 +125,11 @@ public class GameView extends SurfaceView implements SensorEventListener {
         for (Sprite sprite : sprites) {
             sprite.onDraw(canvas);
             //Timer, it is actualiced constantly
-            canvas.drawText(timeLeft,100,100,paint);
+            canvas.drawText(timeLeft,50,50,paint);
+            canvas.drawText(String.valueOf(score),width-50,50,paint);
 
             //If the hero is touched by a bandit the game is over
-            if (isHeroDead()){
+            if ((isHeroDead())||(isTimeOut())){
                 //The screen is cleaned and the thread, activity and timer are stopped
                 sprites.clear();
                 startStop();
@@ -126,7 +138,8 @@ public class GameView extends SurfaceView implements SensorEventListener {
 
                 //The new activity is launched
                 Intent intent= new Intent(getContext(), GameOver.class);
-                intent.putExtra("timer",timeLeft);
+                intent.putExtra("timer",timeleftinMilliseconds);
+                intent.putExtra("score",score);
                 getContext().startActivity(intent);
             }
         }
@@ -140,8 +153,8 @@ public class GameView extends SurfaceView implements SensorEventListener {
 
     private boolean isHeroDead(){
         boolean isDead= false;
-        //When the game is created the first time the hero will be inmortal for a few moments
-        if (600000-timeleftinMilliseconds > 2000) {
+        //When the game is created the first time the hero will be inmortal for a few moments, also when the sprites are refilled
+        if (timeCreationInMilliseconds-timeleftinMilliseconds>2000) {
             synchronized (getHolder()) {
                 //The sprites are get
                 for (int i = sprites.size() - 1; i >= 0; i--) {
@@ -155,6 +168,18 @@ public class GameView extends SurfaceView implements SensorEventListener {
         }
         return isDead;
     }
+    private boolean isTimeOut(){
+        if (timeleftinMilliseconds<=1000){
+            System.out.println("AAAAAAAA"+timeleftinMilliseconds);
+            return true;
+        }
+        else{
+
+            System.out.println(timeleftinMilliseconds);
+            return false;
+        }
+    }
+
 
     //Touch event method (death animation)
     @Override
@@ -172,7 +197,9 @@ public class GameView extends SurfaceView implements SensorEventListener {
                         temps.add(new TempSprite(temps, this, x, y, bmpBlood));
                         //When all the enemies are killed more are generated
                         if(sprites.isEmpty()){
+                            score++;
                             createSprites();
+                            timeCreationInMilliseconds= timeleftinMilliseconds;
                         }
                         break;
                     }
@@ -182,7 +209,9 @@ public class GameView extends SurfaceView implements SensorEventListener {
         return true;
     }
 
-    //Accelerometer methods
+    /*
+     *ACCELEROMETER METHODS
+     */
     @Override
     public void onSensorChanged(SensorEvent event) {
         synchronized (this){
