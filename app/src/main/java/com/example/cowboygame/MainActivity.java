@@ -3,15 +3,13 @@ package com.example.cowboygame;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.pm.ActivityInfo;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.Display;
 import android.view.Window;
 import android.view.WindowManager;
+
+import com.example.cowboygame.Game.GameView;
 
 public class MainActivity extends AppCompatActivity{
     //Music

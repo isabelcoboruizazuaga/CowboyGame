@@ -1,8 +1,10 @@
-package com.example.cowboygame;
+package com.example.cowboygame.Game;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
+
+import com.example.cowboygame.Game.GameView;
 
 import java.util.Random;
 public class Sprite {

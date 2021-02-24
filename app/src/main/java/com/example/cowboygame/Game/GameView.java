@@ -1,4 +1,4 @@
-package com.example.cowboygame;
+package com.example.cowboygame.Game;
 
 import android.app.Activity;
 import android.content.Context;
@@ -12,13 +12,14 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.media.MediaPlayer;
 import android.os.CountDownTimer;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-import java.io.ObjectStreamException;
+import com.example.cowboygame.GameOver;
+import com.example.cowboygame.R;
+
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.List;

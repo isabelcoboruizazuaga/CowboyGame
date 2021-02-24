@@ -1,4 +1,4 @@
-package com.example.cowboygame;
+package com.example.cowboygame.Game;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;

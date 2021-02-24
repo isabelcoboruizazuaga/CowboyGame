@@ -9,10 +9,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Design">
-        <activity android:name=".GameOver"></activity>
+        <activity android:name=".NewPlayer"></activity>
         <activity
             android:name=".MainActivity"
-            android:theme="@style/Theme.Design.NoActionBar">
+            android:theme="@style/Theme.Design.NoActionBar" />
+        <activity android:name=".GameOver" />
+        <activity android:name=".PlayerSelection">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

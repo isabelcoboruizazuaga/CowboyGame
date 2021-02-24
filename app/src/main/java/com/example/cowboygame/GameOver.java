@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.cowboygame.R;
+
 public class GameOver extends AppCompatActivity {
     TextView tv1,tv2;
 
