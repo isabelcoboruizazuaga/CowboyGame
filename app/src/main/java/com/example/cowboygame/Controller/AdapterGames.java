@@ -46,7 +46,7 @@ public class AdapterGames extends RecyclerView.Adapter<AdapterGames.AdapterGames
         //The hour is calculated
         int hour_seconds = (int) (hour / 1000) % 60 ;
         int hour_minutes = (int) ((hour / (1000*60)) % 60);
-        int hour_hours   = (int) ((hour / (1000*60*60)) % 24);
+        int hour_hours   = (int) ((hour / (1000*60*60)) % 24)+1;
         String gameHour= hour_hours+":"+hour_minutes+":"+hour_seconds;
 
         //The game time is calculated
