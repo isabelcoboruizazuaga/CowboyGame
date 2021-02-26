@@ -115,10 +115,10 @@ public class BDGame extends BDController {
                 if(email.equals("-1")){
                     c = db.query(GAMES_TABLE, campos, null, null, null, null, "idGame"+" DESC");
                 }else{
-                    c = db.query(GAMES_TABLE, campos, "email='" + email + "'", null, null, null, "score"+" DESC,"+" time" +" DESC");
+                    c = db.query(GAMES_TABLE, campos, "email='" + email + "'", null, null, null, "score"+" DESC,"+", time" +" ASC");
                 }
             }else{
-                 c = db.query(GAMES_TABLE, campos, null, null, null, null, "score"+" DESC"+" time" +" DESC");
+                 c = db.query(GAMES_TABLE, campos, null, null, null, null, "score"+" DESC"+", time" +" ASC");
 
             }
             if (c.moveToFirst()) {
