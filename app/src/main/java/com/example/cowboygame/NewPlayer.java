@@ -7,8 +7,8 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.example.cowboygame.BD.BDController;
-import com.example.cowboygame.BD.BDPlayer;
+import com.example.cowboygame.Controller.BDController;
+import com.example.cowboygame.Controller.BDPlayer;
 import com.example.cowboygame.Models.Player;
 
 public class NewPlayer extends AppCompatActivity {
@@ -47,8 +47,8 @@ public class NewPlayer extends AppCompatActivity {
             if(nlines<=0){
                 Toast.makeText(this,"ERROR",Toast.LENGTH_LONG).show();
             }
+            finish();
         }
-        finish();
     }
 
     public void cancel(View view) {

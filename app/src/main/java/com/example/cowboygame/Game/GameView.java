@@ -18,6 +18,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import com.example.cowboygame.GameOver;
+import com.example.cowboygame.Models.Player;
 import com.example.cowboygame.R;
 
 import java.util.ArrayList;
@@ -25,12 +26,13 @@ import java.util.ConcurrentModificationException;
 import java.util.List;
 
 public class GameView extends SurfaceView implements SensorEventListener {
+    Player player;
     //Score
     Paint paint= new Paint();
     private int score=0;
     //Timer variables
     private CountDownTimer countDownTimer;
-    private long timeleftinMilliseconds= 30000;//180000;
+    private long timeleftinMilliseconds= 180000;
     private boolean timeFlowing;
     private String timeLeft;
     //Images and sizes
@@ -43,9 +45,10 @@ public class GameView extends SurfaceView implements SensorEventListener {
     private long lastClick;
     private long timeCreationInMilliseconds;
 
-    public GameView(Context context,float width, float height) {
+    public GameView(Context context,float width, float height, Player player) {
         super(context);
         createPaint();
+        this.player=player;
         //Time initialization
         startStop();
         //Height and width assignation
@@ -141,6 +144,7 @@ public class GameView extends SurfaceView implements SensorEventListener {
                 Intent intent= new Intent(getContext(), GameOver.class);
                 intent.putExtra("timer",timeleftinMilliseconds);
                 intent.putExtra("score",score);
+                intent.putExtra("player",player);
                 getContext().startActivity(intent);
             }
         }

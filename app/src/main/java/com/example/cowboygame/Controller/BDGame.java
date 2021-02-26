@@ -1,4 +1,4 @@
-package com.example.cowboygame.BD;
+package com.example.cowboygame.Controller;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -89,7 +89,7 @@ public class BDGame extends BDController {
             Cursor c = db.query(GAMES_TABLE, campos, "idGame='" + idGame + "'", null, null, null, null);
             if (c.getCount() != 0) {
                 c.moveToFirst();
-                game = new Game(c.getInt(0),
+                game = new Game(
                         c.getInt(1),
                         c.getLong(2),
                         c.getLong(3),
@@ -110,10 +110,16 @@ public class BDGame extends BDController {
         List<Game> gameList = new ArrayList<>();
         if (db != null) {
             String[] campos = {"idGame", "score", "hour", "time", "email"};
-            Cursor c = db.query(PLAYERS_TABLE, campos, "email='" + email + "'", null, null, null, "score");
+            Cursor c;
+            if (email!=null) {
+                 c = db.query(GAMES_TABLE, campos, "email='" + email + "'", null, null, null, "score"+" DESC");
+            }else{
+                 c = db.query(GAMES_TABLE, campos, null, null, null, null, "score"+" DESC");
+
+            }
             if (c.moveToFirst()) {
                 do {
-                    game = new Game(c.getInt(0),
+                    game = new Game(
                             c.getInt(1),
                             c.getLong(2),
                             c.getLong(3),

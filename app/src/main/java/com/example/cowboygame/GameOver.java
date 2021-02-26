@@ -7,35 +7,59 @@ import android.os.Bundle;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.cowboygame.Controller.BDController;
+import com.example.cowboygame.Controller.BDGame;
+import com.example.cowboygame.Controller.BDPlayer;
+import com.example.cowboygame.Models.Game;
+import com.example.cowboygame.Models.Player;
 import com.example.cowboygame.R;
+
+import java.util.ArrayList;
 
 public class GameOver extends AppCompatActivity {
     TextView tv1,tv2;
+    private BDGame bdGame;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game_over);
-        Toast.makeText(this,"aaaaaaa",Toast.LENGTH_LONG);
 
         tv1=findViewById(R.id.textView);
         tv2=findViewById(R.id.textView2);
 
+        //The game data are collected
         Intent intent=getIntent();
-        float timeBegin = intent.getFloatExtra("timeBegin",0);
-        float timeEnd = intent.getFloatExtra("timeEnd",0);
+        long timer = intent.getLongExtra("timer",0);
+        int score = intent.getIntExtra("score",0);
+        Player player = (Player) intent.getSerializableExtra("player");
 
+        //Database initialization
+         bdGame = new BDGame(this);
 
+        /*//The last id is recovered
+        ArrayList<Game> games= bdGame.obtainAllGames("-1");
+        int lastId;
+        try{
+            Game lastGame= games.get(0);
+            lastId= lastGame.getIdGame();
+        }catch (IndexOutOfBoundsException e){
+            lastId=0;
+        }*/
 
-        tv1.setText(String.valueOf(timeBegin));
-        tv2.setText(String.valueOf(timeEnd));
+        //New Game creation
+        Game gam=new Game(score,System.currentTimeMillis(),timer,player.getEmail());
+        Toast.makeText(this,gam.getIdGame(),Toast.LENGTH_SHORT).show();
+        Game game= new Game(score,System.currentTimeMillis(),timer,player.getEmail());
+        Toast.makeText(this,game.getIdGame(),Toast.LENGTH_LONG).show();
+        long nlines = bdGame.addGame(game);
+            if(nlines<=0){
+                Toast.makeText(this,"ERROR",Toast.LENGTH_LONG).show();
+            }
 
-        System.out.println("Took : " + ((timeEnd - timeBegin) / 1000));
 
         Toast.makeText(this,String.valueOf(System.currentTimeMillis()), Toast.LENGTH_LONG).show();
-        System.out.println(System.currentTimeMillis());
 
-
-
+        startActivity(new Intent(this, BestGames.class));
     }
 }

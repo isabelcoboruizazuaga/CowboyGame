@@ -1,4 +1,4 @@
-package com.example.cowboygame;
+package com.example.cowboygame.Controller;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -13,7 +13,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.cowboygame.MainActivity;
 import com.example.cowboygame.Models.Player;
+import com.example.cowboygame.R;
 
 import java.util.ArrayList;
 

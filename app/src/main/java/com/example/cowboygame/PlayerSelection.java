@@ -8,8 +8,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
-import com.example.cowboygame.BD.BDController;
-import com.example.cowboygame.BD.BDPlayer;
+import com.example.cowboygame.Controller.AdapterPlayers;
+import com.example.cowboygame.Controller.BDController;
+import com.example.cowboygame.Controller.BDPlayer;
 import com.example.cowboygame.Models.Player;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -43,14 +44,15 @@ public class PlayerSelection extends AppCompatActivity {
         bdPlayer=new BDPlayer(this);
 
         //RecyclerView initialization
-        recView = findViewById(R.id.rv_Store);
+        recView = findViewById(R.id.rv_player);
 
         //Assignment of the Layout to the Recycler View
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         recView.setLayoutManager(layoutManager);
 
         fillRecycler();
-        /*Player p1= new Player("manolo","p1@gmail.com","12345");
+        /*
+        Player p1= new Player("manolo","p1@gmail.com","12345");
         players.add(p1);
          p1= new Player("sdsasd","p1@gmail.com","12345");
         players.add(p1);
@@ -76,11 +78,6 @@ public class PlayerSelection extends AppCompatActivity {
 
     public void fillRecycler(){
         players= bdPlayer.obtainPlayers();
-        for (int i=0; i<players.size();i++){
-
-            System.out.println(players.get(i).getEmail());
-        }
-
         //Assignment of the Recycler View adapter with the user list
         AdapterPlayers adapter = new AdapterPlayers(players);
         recView.setAdapter(adapter);

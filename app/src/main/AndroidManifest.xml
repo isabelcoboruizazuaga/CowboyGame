@@ -9,7 +9,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Design">
-        <activity android:name=".NewPlayer"></activity>
+        <activity android:name=".BestGames"></activity>
+        <activity android:name=".NewPlayer" />
         <activity
             android:name=".MainActivity"
             android:theme="@style/Theme.Design.NoActionBar" />

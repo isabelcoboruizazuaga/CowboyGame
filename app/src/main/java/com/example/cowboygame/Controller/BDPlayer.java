@@ -1,4 +1,4 @@
-package com.example.cowboygame.BD;
+package com.example.cowboygame.Controller;
 
 import android.content.ContentValues;
 import android.content.Context;

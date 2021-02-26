@@ -2,6 +2,7 @@ package com.example.cowboygame;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import com.example.cowboygame.Game.GameView;
+import com.example.cowboygame.Models.Player;
 
 public class MainActivity extends AppCompatActivity{
     //Music
@@ -29,8 +31,13 @@ public class MainActivity extends AppCompatActivity{
         float width = display.getWidth();
         float height = display.getHeight();
 
+
+
+        Intent intent=getIntent();
+        Player player = (Player) intent.getSerializableExtra("player");
+
         //Game creation
-        GameView gv= new GameView(this,width,height);
+        GameView gv= new GameView(this,width,height, player);
         setContentView(gv);
 
         mySong= MediaPlayer.create(MainActivity.this,R.raw.song);

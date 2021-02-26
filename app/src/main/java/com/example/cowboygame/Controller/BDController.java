@@ -1,4 +1,4 @@
-package com.example.cowboygame.BD;
+package com.example.cowboygame.Controller;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -15,11 +15,22 @@ public class BDController extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "BD_Juego.db";
 
     protected static final String PLAYERS_TABLE = "Players";
-    private static final String create_table_players = "CREATE TABLE " + PLAYERS_TABLE +" ( name VARCHAR(100), email VARCHAR(100) PRIMARY KEY, phone VARCHAR(20))";
+    private static final String create_table_players =
+            "CREATE TABLE " + PLAYERS_TABLE +"" +
+                    " ( name VARCHAR(100)," +
+                    " email VARCHAR(100) PRIMARY KEY," +
+                    " phone VARCHAR(20))";
 
     protected static final String GAMES_TABLE = "Games";
     private static final String foreign_key_game= "FOREIGN KEY (email) REFERENCES "+ PLAYERS_TABLE +"(email)";
-    private static final String create_table_games = "CREATE TABLE "+ GAMES_TABLE + " (idGame INT PRIMARY KEY, score INT, hour LONG, time LONG" + foreign_key_game+ ")";
+    private static final String create_table_games =
+            "CREATE TABLE "+ GAMES_TABLE +
+            " (idGame INT PRIMARY KEY," +
+            " score INT," +
+            " hour LONG," +
+            " time LONG," +
+            " email VARCHAR(100)," +
+            " " + foreign_key_game+ ")";
 
 
     public BDController(@Nullable Context context) {
@@ -29,7 +40,7 @@ public class BDController extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(create_table_players);
-        //db.execSQL(create_table_games);
+        db.execSQL(create_table_games);
     }
 
     @Override
