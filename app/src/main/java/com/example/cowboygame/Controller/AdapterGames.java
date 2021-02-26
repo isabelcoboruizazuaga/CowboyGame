@@ -43,6 +43,12 @@ public class AdapterGames extends RecyclerView.Adapter<AdapterGames.AdapterGames
         int score = gameItem.getScore();
         long timeLeft= gameItem.getTime();
 
+        //The hour is calculated
+        int hour_seconds = (int) (hour / 1000) % 60 ;
+        int hour_minutes = (int) ((hour / (1000*60)) % 60);
+        int hour_hours   = (int) ((hour / (1000*60*60)) % 24);
+        String gameHour= hour_hours+":"+hour_minutes+":"+hour_seconds;
+
         //The game time is calculated
         long timePlayed= 180000-timeLeft;
 
@@ -58,7 +64,7 @@ public class AdapterGames extends RecyclerView.Adapter<AdapterGames.AdapterGames
         }
 
         //The player data are put into the layout
-        holder.tv_hour.setText(String.valueOf(hour));
+        holder.tv_hour.setText(String.valueOf(gameHour));
         holder.tv_email.setText(email);
         holder.tv_score.setText(String.valueOf(score));
         holder.tv_timeLeft.setText(gameTime);
