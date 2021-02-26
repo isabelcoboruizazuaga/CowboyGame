@@ -175,12 +175,9 @@ public class GameView extends SurfaceView implements SensorEventListener {
     }
     private boolean isTimeOut(){
         if (timeleftinMilliseconds<=1000){
-            System.out.println("AAAAAAAA"+timeleftinMilliseconds);
             return true;
         }
         else{
-
-            System.out.println(timeleftinMilliseconds);
             return false;
         }
     }
@@ -278,6 +275,5 @@ public class GameView extends SurfaceView implements SensorEventListener {
         }else{
             timeLeft="" + minutes + ":" +seconds;
         }
-
     }
 }

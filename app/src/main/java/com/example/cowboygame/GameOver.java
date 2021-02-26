@@ -37,21 +37,20 @@ public class GameOver extends AppCompatActivity {
         //Database initialization
          bdGame = new BDGame(this);
 
-        /*//The last id is recovered
+        //The last id is recovered
         ArrayList<Game> games= bdGame.obtainAllGames("-1");
         int lastId;
         try{
-            Game lastGame= games.get(0);
+            Game lastGame= games.get(games.size()-1);
             lastId= lastGame.getIdGame();
         }catch (IndexOutOfBoundsException e){
             lastId=0;
-        }*/
+        }
+        Game.setNextID(lastId+1);
 
         //New Game creation
-        Game gam=new Game(score,System.currentTimeMillis(),timer,player.getEmail());
-        Toast.makeText(this,gam.getIdGame(),Toast.LENGTH_SHORT).show();
+        //Game gam=new Game(score,System.currentTimeMillis(),timer,player.getEmail());
         Game game= new Game(score,System.currentTimeMillis(),timer,player.getEmail());
-        Toast.makeText(this,game.getIdGame(),Toast.LENGTH_LONG).show();
         long nlines = bdGame.addGame(game);
             if(nlines<=0){
                 Toast.makeText(this,"ERROR",Toast.LENGTH_LONG).show();

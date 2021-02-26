@@ -112,9 +112,13 @@ public class BDGame extends BDController {
             String[] campos = {"idGame", "score", "hour", "time", "email"};
             Cursor c;
             if (email!=null) {
-                 c = db.query(GAMES_TABLE, campos, "email='" + email + "'", null, null, null, "score"+" DESC");
+                if(email.equals("-1")){
+                    c = db.query(GAMES_TABLE, campos, null, null, null, null, "idGame"+" DESC");
+                }else{
+                    c = db.query(GAMES_TABLE, campos, "email='" + email + "'", null, null, null, "score"+" DESC,"+" time" +" DESC");
+                }
             }else{
-                 c = db.query(GAMES_TABLE, campos, null, null, null, null, "score"+" DESC");
+                 c = db.query(GAMES_TABLE, campos, null, null, null, null, "score"+" DESC"+" time" +" DESC");
 
             }
             if (c.moveToFirst()) {

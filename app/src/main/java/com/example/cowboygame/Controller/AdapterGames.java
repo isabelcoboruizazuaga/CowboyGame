@@ -1,10 +1,6 @@
 package com.example.cowboygame.Controller;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,9 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.cowboygame.MainActivity;
 import com.example.cowboygame.Models.Game;
-import com.example.cowboygame.Models.Player;
 import com.example.cowboygame.R;
 
 import java.util.ArrayList;
@@ -49,11 +43,25 @@ public class AdapterGames extends RecyclerView.Adapter<AdapterGames.AdapterGames
         int score = gameItem.getScore();
         long timeLeft= gameItem.getTime();
 
+        //The game time is calculated
+        long timePlayed= 180000-timeLeft;
+
+        int minutes= (int) timePlayed/60000;
+        int seconds= (int) (timePlayed % 60000)/1000;
+
+        String gameTime="";
+
+        if (seconds<10) {
+            gameTime="" + minutes + ":" +"0" +seconds;
+        }else{
+            gameTime="" + minutes + ":" +seconds;
+        }
+
         //The player data are put into the layout
         holder.tv_hour.setText(String.valueOf(hour));
         holder.tv_email.setText(email);
         holder.tv_score.setText(String.valueOf(score));
-        holder.tv_timeLeft.setText(String.valueOf(timeLeft));
+        holder.tv_timeLeft.setText(gameTime);
 
     }
 
@@ -77,7 +85,7 @@ public class AdapterGames extends RecyclerView.Adapter<AdapterGames.AdapterGames
             tv_email = (TextView) itemView.findViewById(R.id.tv_email);
             tv_hour = (TextView) itemView.findViewById(R.id.tv_hour);
             tv_score = (TextView) itemView.findViewById(R.id.tv_score);
-            tv_timeLeft = (TextView) itemView.findViewById(R.id.tv_timeLeft);
+            tv_timeLeft = (TextView) itemView.findViewById(R.id.tv_timePlayed);
         }
     }
 }
