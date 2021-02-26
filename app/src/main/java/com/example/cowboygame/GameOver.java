@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,22 +18,42 @@ import com.example.cowboygame.R;
 import java.util.ArrayList;
 
 public class GameOver extends AppCompatActivity {
-    TextView tv1,tv2;
+    private TextView tv_scoreGO,tv_timeGO;
     private BDGame bdGame;
+    private Player player;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game_over);
 
-        tv1=findViewById(R.id.textView);
-        tv2=findViewById(R.id.textView2);
+        //Layout initialization
+        tv_scoreGO=findViewById(R.id.tv_scoreGO);
+        tv_timeGO=findViewById(R.id.tv_timeGO);
 
         //The game data are collected
         Intent intent=getIntent();
         long timer = intent.getLongExtra("timer",0);
         int score = intent.getIntExtra("score",0);
-        Player player = (Player) intent.getSerializableExtra("player");
+         player = (Player) intent.getSerializableExtra("player");
+
+        //The game time is calculated
+        long timePlayed= 180000-timer;
+
+        int minutes= (int) timePlayed/60000;
+        int seconds= (int) (timePlayed % 60000)/1000;
+
+        String gameTime="";
+
+        if (seconds<10) {
+            gameTime="" + minutes + ":" +"0" +seconds;
+        }else{
+            gameTime="" + minutes + ":" +seconds;
+        }
+
+        //The layout is filled
+        tv_scoreGO.setText(String.valueOf(score));
+        tv_timeGO.setText(String.valueOf(gameTime));
 
         //Database initialization
          bdGame = new BDGame(this);
@@ -49,16 +70,19 @@ public class GameOver extends AppCompatActivity {
         Game.setNextID(lastId+1);
 
         //New Game creation
-        //Game gam=new Game(score,System.currentTimeMillis(),timer,player.getEmail());
+        Game gam=new Game(score,System.currentTimeMillis(),timer,player.getEmail());
         Game game= new Game(score,System.currentTimeMillis(),timer,player.getEmail());
         long nlines = bdGame.addGame(game);
             if(nlines<=0){
                 Toast.makeText(this,"ERROR",Toast.LENGTH_LONG).show();
             }
+    }
 
+    public void retry(View view) {
+        finish();
+    }
 
-        Toast.makeText(this,String.valueOf(System.currentTimeMillis()), Toast.LENGTH_LONG).show();
-
+    public void launchBestGames(View view) {
         startActivity(new Intent(this, BestGames.class));
     }
 }

@@ -31,8 +31,6 @@ public class MainActivity extends AppCompatActivity{
         float width = display.getWidth();
         float height = display.getHeight();
 
-
-
         Intent intent=getIntent();
         Player player = (Player) intent.getSerializableExtra("player");
 

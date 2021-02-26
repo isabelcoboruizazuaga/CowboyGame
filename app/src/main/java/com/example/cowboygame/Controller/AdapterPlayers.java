@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.cowboygame.MainActivity;
 import com.example.cowboygame.Models.Player;
+import com.example.cowboygame.PlayerGames;
 import com.example.cowboygame.R;
 
 import java.util.ArrayList;
@@ -108,6 +109,9 @@ public class AdapterPlayers extends RecyclerView.Adapter<AdapterPlayers.AdapterP
                         break;
                     case 1:
                         //Stats
+                        Intent intent2= new Intent(context, PlayerGames.class);
+                        intent2.putExtra("player",playerItem);
+                        context.startActivity(intent2);
                         break;
 
                     case 2:
