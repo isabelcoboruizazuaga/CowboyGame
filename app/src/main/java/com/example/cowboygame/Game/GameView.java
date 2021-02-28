@@ -8,13 +8,17 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Build;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+
+import androidx.annotation.RequiresApi;
 
 import com.example.cowboygame.GameOver;
 import com.example.cowboygame.Controller.LaserThread;
@@ -25,10 +29,14 @@ import com.example.cowboygame.R;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.List;
+import java.util.Random;
 
 public class GameView extends SurfaceView implements SensorEventListener {
     private Player player;
     private int count=0;
+    //Background variables
+    Bitmap lastBackground= BitmapFactory.decodeResource(getResources(), R.drawable.background1);
+    private boolean changeBack=true;
     //Laser variables
     private LaserThread laserThread1,laserThread2,laserThread3;
     public float xfinalLaser1, yfinalLaser1, xLaser1, yLaser1, xInitialLaser1, yInitialLaser1;
@@ -140,11 +148,40 @@ public class GameView extends SurfaceView implements SensorEventListener {
         paint.setTextSize(50);
     }
 
+    //Background change
+    private void changeBackground(Canvas canvas){
+        Bitmap bpmBackground= lastBackground;
+        Random random = new Random();
+        int randomId = random.nextInt(4) + 1;
+
+        if(changeBack==true) {
+            switch (randomId) {
+                case 1:
+                    bpmBackground = BitmapFactory.decodeResource(getResources(), R.drawable.background1);
+                    break;
+                case 2:
+                    bpmBackground = BitmapFactory.decodeResource(getResources(), R.drawable.background2);
+                    break;
+                case 3:
+                    bpmBackground = BitmapFactory.decodeResource(getResources(), R.drawable.background3);
+                    break;
+                case 4:
+                    bpmBackground = BitmapFactory.decodeResource(getResources(), R.drawable.background4);
+                    break;
+            }
+        }
+        lastBackground=bpmBackground;
+        canvas.drawBitmap(bpmBackground,0,0,null);
+        changeBack=false;
+    }
+
     //Draw method
     @Override
     protected void onDraw(Canvas canvas) {
         //Background
         canvas.drawColor(Color.BLACK);
+        changeBackground(canvas);
+
         //Sprites drawing and movement
         for (int i = temps.size() - 1; i >= 0; i--) {
             temps.get(i).onDraw(canvas);
@@ -204,6 +241,7 @@ public class GameView extends SurfaceView implements SensorEventListener {
         }
         return isDead;
     }
+
     private boolean isTimeOut(){
         if (timer.getTimeleftinMilliseconds()<=1000){
             return true;
@@ -217,6 +255,7 @@ public class GameView extends SurfaceView implements SensorEventListener {
         if(sprites.isEmpty()){
             createSprites();
             timeCreationInMilliseconds= timer.getTimeleftinMilliseconds();
+            changeBack=true;
         }
     }
 
