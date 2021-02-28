@@ -12,13 +12,14 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.CountDownTimer;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import com.example.cowboygame.GameOver;
+import com.example.cowboygame.Controller.LaserThread;
 import com.example.cowboygame.Models.Player;
+import com.example.cowboygame.Models.Timer;
 import com.example.cowboygame.R;
 
 import java.util.ArrayList;
@@ -26,18 +27,19 @@ import java.util.ConcurrentModificationException;
 import java.util.List;
 
 public class GameView extends SurfaceView implements SensorEventListener {
-    Player player;
+    public float xfinalLaser,yfinalLaser, xLaser,yLaser=40, xInicialLaser,yInicialLaser;
+    private Player player;
+    //Laser variables
+    private LaserThread laserThread;
+    public Bitmap bpmLaser;
     //Score
     Paint paint= new Paint();
     private int score=0;
     //Timer variables
-    private CountDownTimer countDownTimer;
-    private long timeleftinMilliseconds= 180000;
-    private boolean timeFlowing;
-    private String timeLeft;
+    Timer timer;
     //Images and sizes
     private Bitmap bmpBlood, bpmHero;
-    float x=40,y=40,width,height,heroHeigth=0,heroWidth=0;
+    public float xHero=40, yHero=40,width,height,heroHeigth=0,heroWidth=0;
     //Loop and sprites
     private GameLoopThread gameLoopThread;
     private List<Sprite> sprites = new ArrayList<Sprite>();
@@ -50,7 +52,8 @@ public class GameView extends SurfaceView implements SensorEventListener {
         createPaint();
         this.player=player;
         //Time initialization
-        startStop();
+        timer= new Timer();
+        timer.startStop();
         //Height and width assignation
         this.width=width;
         this.height=height-30;
@@ -60,25 +63,33 @@ public class GameView extends SurfaceView implements SensorEventListener {
                 SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM);
         //Game Thread
         gameLoopThread = new GameLoopThread(this);
+        laserThread=new LaserThread(this);
+
         getHolder().addCallback(new SurfaceHolder.Callback() {
             @Override
             public void surfaceDestroyed(SurfaceHolder holder) {
                 boolean retry = true;
                 gameLoopThread.setRunning(false);
+                laserThread.setRunning(false);
                 while (retry) {
                     try {
                         gameLoopThread.join();
+                        laserThread.join();
                         retry = false;
                     } catch (InterruptedException e) {}
                 }
             }
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
-                //Sprites creation and sprites thread created
+                //Sprites creation
                 createSprites();
-                timeCreationInMilliseconds=timeleftinMilliseconds;
+                //Time getted
+                timeCreationInMilliseconds=timer.getTimeleftinMilliseconds();
+                //Thread started
                 gameLoopThread.setRunning(true);
                 gameLoopThread.start();
+                laserThread.setRunning(true);
+                laserThread.start();
             }
             @Override
             public void surfaceChanged(SurfaceHolder holder, int format,
@@ -87,7 +98,8 @@ public class GameView extends SurfaceView implements SensorEventListener {
         });
         //Hero and blood initialization
         bmpBlood = BitmapFactory.decodeResource(getResources(), R.drawable.blood);
-        bpmHero = BitmapFactory.decodeResource(getResources(), R.drawable.conrad);
+        bpmHero = BitmapFactory.decodeResource(getResources(), R.drawable.hero);
+        bpmLaser = BitmapFactory.decodeResource(getResources(), R.drawable.laser);
     }
 
     //Method to refill the sprites array
@@ -124,25 +136,26 @@ public class GameView extends SurfaceView implements SensorEventListener {
         for (int i = temps.size() - 1; i >= 0; i--) {
             temps.get(i).onDraw(canvas);
         }
+        isSpriteDead();
 
         try{
         for (Sprite sprite : sprites) {
             sprite.onDraw(canvas);
             //Timer, it is actualiced constantly
-            canvas.drawText(timeLeft,50,50,paint);
+            canvas.drawText(timer.getTimeLeft(),50,50,paint);
             canvas.drawText(String.valueOf(score),width-50,50,paint);
 
             //If the hero is touched by a bandit the game is over
             if ((isHeroDead())||(isTimeOut())){
                 //The screen is cleaned and the thread, activity and timer are stopped
                 sprites.clear();
-                startStop();
+                timer.startStop();
                 gameLoopThread.interrupt();
                 ((Activity)getContext()).finish();
 
                 //The new activity is launched
                 Intent intent= new Intent(getContext(), GameOver.class);
-                intent.putExtra("timer",timeleftinMilliseconds);
+                intent.putExtra("timer",timer.getTimeleftinMilliseconds());
                 intent.putExtra("score",score);
                 intent.putExtra("player",player);
                 getContext().startActivity(intent);
@@ -151,30 +164,34 @@ public class GameView extends SurfaceView implements SensorEventListener {
         }catch (ConcurrentModificationException e){
         }
         //Hero, his position is actualized constantly
-        canvas.drawBitmap(bpmHero,x,y,null);
+        canvas.drawBitmap(bpmHero, xHero, yHero,null);
         heroHeigth=bpmHero.getScaledHeight(canvas)-8;
         heroWidth=bpmHero.getScaledWidth(canvas)-8;
+
+        //Laser
+        canvas.drawBitmap(bpmLaser, xLaser, yLaser, null);
     }
 
     private boolean isHeroDead(){
         boolean isDead= false;
         //When the game is created the first time the hero will be inmortal for a few moments, also when the sprites are refilled
-        if (timeCreationInMilliseconds-timeleftinMilliseconds>2000) {
+        if (timeCreationInMilliseconds-timer.getTimeleftinMilliseconds()>2000) {
             synchronized (getHolder()) {
                 //The sprites are get
                 for (int i = sprites.size() - 1; i >= 0; i--) {
                     Sprite sprite = sprites.get(i);
                     //If they are in the same position as the hero he is considered dead
-                    if (sprite.isCollision(x, y) || sprite.isCollision(x + heroWidth, y + heroHeigth) || sprite.isCollision(x + heroWidth, y) || sprite.isCollision(x, y + heroHeigth)) {
+                    if (sprite.isCollision(xHero, yHero) || sprite.isCollision(xHero + heroWidth, yHero + heroHeigth) || sprite.isCollision(xHero + heroWidth, yHero) || sprite.isCollision(xHero, yHero + heroHeigth)) {
                         isDead = true;
                     }
                 }
             }
         }
-        return isDead;
+        //return isDead;
+        return false;
     }
     private boolean isTimeOut(){
-        if (timeleftinMilliseconds<=1000){
+        if (timer.getTimeleftinMilliseconds()<=1000){
             return true;
         }
         else{
@@ -182,6 +199,37 @@ public class GameView extends SurfaceView implements SensorEventListener {
         }
     }
 
+   /* public void aaa(){
+        xInicialLaser=x;
+        yInicialLaser=y;
+        for(float i= xInicialLaser;i<xfinalLaser;i++){
+            xLaser=i;
+            yLaser=((xLaser*(yfinalLaser-xfinalLaser))-(xInicialLaser*yfinalLaser)+(xfinalLaser*yfinalLaser))/(yInicialLaser+xInicialLaser);
+
+            //System.out.println("X: "+ xLaser);
+            System.out.println("Y: "+ yLaser);
+        }
+    }*/
+
+    public void isSpriteDead(){
+        synchronized (getHolder()) {
+            for (int i = sprites.size() - 1; i >= 0; i--) {
+                Sprite sprite = sprites.get(i);
+                //If we touched a sprite it will be removed
+                if (sprite.isCollision(xLaser, yLaser)) {
+                    sprites.remove(sprite);
+                    temps.add(new TempSprite(temps, this, xLaser, yLaser, bmpBlood));
+                    //When all the enemies are killed more are generated
+                    if(sprites.isEmpty()){
+                        score++;
+                        createSprites();
+                        timeCreationInMilliseconds= timer.getTimeleftinMilliseconds();
+                    }
+                    break;
+                }
+            }
+        }
+    }
 
     //Touch event method (death animation)
     @Override
@@ -190,23 +238,29 @@ public class GameView extends SurfaceView implements SensorEventListener {
             lastClick = System.currentTimeMillis();
             float x = event.getX();
             float y = event.getY();
-            synchronized (getHolder()) {
+            yfinalLaser=y;
+            xfinalLaser=x;
+            xInicialLaser=xHero;
+            yInicialLaser=yHero;
+            xLaser=xHero+heroWidth/2;
+            yLaser=yHero+heroHeigth/2;
+            /*synchronized (getHolder()) {
                 for (int i = sprites.size() - 1; i >= 0; i--) {
                     Sprite sprite = sprites.get(i);
                     //If we touched a sprite it will be removed
-                    if (sprite.isCollision(x, y)) {
+                    if (sprite.isCollision(xLaser, yLaser)) {
                         sprites.remove(sprite);
                         temps.add(new TempSprite(temps, this, x, y, bmpBlood));
                         //When all the enemies are killed more are generated
                         if(sprites.isEmpty()){
                             score++;
                             createSprites();
-                            timeCreationInMilliseconds= timeleftinMilliseconds;
+                            timeCreationInMilliseconds= timer.getTimeleftinMilliseconds();
                         }
                         break;
                     }
                 }
-            }
+            }*/
         }
         return true;
     }
@@ -219,15 +273,15 @@ public class GameView extends SurfaceView implements SensorEventListener {
         synchronized (this){
             //Sensor values are assigned
             if(event.sensor.getType()==Sensor.TYPE_ACCELEROMETER){
-                x= x - event.values[0];
-                y = y + event.values[1];
+                xHero = xHero - event.values[0];
+                yHero = yHero + event.values[1];
                 //When it arrives to the horizontal border it stops
-                if(x<=0|| x+ bpmHero.getWidth()>=width){
-                    x= x + event.values[0];
+                if(xHero <=0|| xHero + bpmHero.getWidth()>=width){
+                    xHero = xHero + event.values[0];
                 }
                 //Same happens in vertical border
-                if(y<=0 || y+ bpmHero.getWidth()>=height){
-                    y= y -event.values[1];
+                if(yHero <=0 || yHero + bpmHero.getWidth()>=height){
+                    yHero = yHero -event.values[1];
                 }
             }
         }
@@ -236,44 +290,5 @@ public class GameView extends SurfaceView implements SensorEventListener {
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
-    }
-
-    /*
-    *TIMER METHODS
-     */
-    public void startStop(){
-        if (timeFlowing){
-            stopTimer();
-        }else{
-            startTimer();
-        }
-    }
-    public void startTimer(){
-        countDownTimer = new CountDownTimer(timeleftinMilliseconds,1000){
-            @Override
-            public void onTick(long l){
-                timeleftinMilliseconds= l;
-                updateTimer();
-            }
-            @Override
-            public void onFinish(){}
-        }.start();
-        timeFlowing=true;
-    }
-
-    public void stopTimer(){
-        countDownTimer.cancel();
-        timeFlowing= false;
-    }
-
-    public void updateTimer(){
-        int minutes= (int) timeleftinMilliseconds/60000;
-        int seconds= (int) (timeleftinMilliseconds % 60000)/1000;
-
-        if (seconds<10) {
-            timeLeft="" + minutes + ":" +"0" +seconds;
-        }else{
-            timeLeft="" + minutes + ":" +seconds;
-        }
     }
 }

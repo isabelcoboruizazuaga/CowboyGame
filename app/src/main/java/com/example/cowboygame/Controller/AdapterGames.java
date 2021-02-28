@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.cowboygame.Models.Game;
+import com.example.cowboygame.Models.Timer;
 import com.example.cowboygame.R;
 
 import java.util.ArrayList;
@@ -50,7 +51,7 @@ public class AdapterGames extends RecyclerView.Adapter<AdapterGames.AdapterGames
         String gameHour= hour_hours+":"+hour_minutes+":"+hour_seconds;
 
         //The game time is calculated
-        long timePlayed= 180000-timeLeft;
+        long timePlayed= Timer.INITIALTIME -timeLeft;
 
         int minutes= (int) timePlayed/60000;
         int seconds= (int) (timePlayed % 60000)/1000;

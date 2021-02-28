@@ -13,6 +13,7 @@ import com.example.cowboygame.Controller.BDGame;
 import com.example.cowboygame.Controller.BDPlayer;
 import com.example.cowboygame.Models.Game;
 import com.example.cowboygame.Models.Player;
+import com.example.cowboygame.Models.Timer;
 import com.example.cowboygame.R;
 
 import java.util.ArrayList;
@@ -38,7 +39,7 @@ public class GameOver extends AppCompatActivity {
          player = (Player) intent.getSerializableExtra("player");
 
         //The game time is calculated
-        long timePlayed= 180000-timer;
+        long timePlayed= Timer.INITIALTIME-timer;
 
         int minutes= (int) timePlayed/60000;
         int seconds= (int) (timePlayed % 60000)/1000;
@@ -67,7 +68,7 @@ public class GameOver extends AppCompatActivity {
         }catch (IndexOutOfBoundsException e){
             lastId=0;
         }
-        Game.setNextID(lastId+1);
+        Game.setNextID(lastId);
 
         //New Game creation
         Game gam=new Game(score,System.currentTimeMillis(),timer,player.getEmail());
