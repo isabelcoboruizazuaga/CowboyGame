@@ -27,10 +27,13 @@ import java.util.ConcurrentModificationException;
 import java.util.List;
 
 public class GameView extends SurfaceView implements SensorEventListener {
-    public float xfinalLaser,yfinalLaser, xLaser,yLaser=40, xInicialLaser,yInicialLaser;
     private Player player;
+    private int count=0;
     //Laser variables
-    private LaserThread laserThread;
+    private LaserThread laserThread1,laserThread2,laserThread3;
+    public float xfinalLaser1, yfinalLaser1, xLaser1, yLaser1, xInitialLaser1, yInitialLaser1;
+    public float xfinalLaser2, yfinalLaser2, xLaser2, yLaser2, xInitialLaser2, yInitialLaser2;
+    public float xfinalLaser3, yfinalLaser3, xLaser3, yLaser3, xInitialLaser3, yInitialLaser3;
     public Bitmap bpmLaser;
     //Score
     Paint paint= new Paint();
@@ -63,18 +66,24 @@ public class GameView extends SurfaceView implements SensorEventListener {
                 SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM);
         //Game Thread
         gameLoopThread = new GameLoopThread(this);
-        laserThread=new LaserThread(this);
+        laserThread1 =new LaserThread(this,1);
+        laserThread2 =new LaserThread(this,2);
+        laserThread3 =new LaserThread(this,3);
 
         getHolder().addCallback(new SurfaceHolder.Callback() {
             @Override
             public void surfaceDestroyed(SurfaceHolder holder) {
                 boolean retry = true;
                 gameLoopThread.setRunning(false);
-                laserThread.setRunning(false);
+                laserThread1.setRunning(false);
+                laserThread2.setRunning(false);
+                laserThread3.setRunning(false);
                 while (retry) {
                     try {
                         gameLoopThread.join();
-                        laserThread.join();
+                        laserThread2.join();
+                        laserThread1.join();
+                        laserThread3.join();
                         retry = false;
                     } catch (InterruptedException e) {}
                 }
@@ -88,8 +97,12 @@ public class GameView extends SurfaceView implements SensorEventListener {
                 //Thread started
                 gameLoopThread.setRunning(true);
                 gameLoopThread.start();
-                laserThread.setRunning(true);
-                laserThread.start();
+                laserThread1.setRunning(true);
+                laserThread1.start();
+                laserThread2.setRunning(true);
+                laserThread2.start();
+                laserThread3.setRunning(true);
+                laserThread3.start();
             }
             @Override
             public void surfaceChanged(SurfaceHolder holder, int format,
@@ -169,7 +182,9 @@ public class GameView extends SurfaceView implements SensorEventListener {
         heroWidth=bpmHero.getScaledWidth(canvas)-8;
 
         //Laser
-        canvas.drawBitmap(bpmLaser, xLaser, yLaser, null);
+        canvas.drawBitmap(bpmLaser, xLaser1, yLaser1, null);
+        canvas.drawBitmap(bpmLaser, xLaser2, yLaser2, null);
+        canvas.drawBitmap(bpmLaser, xLaser3, yLaser3, null);
     }
 
     private boolean isHeroDead(){
@@ -187,8 +202,7 @@ public class GameView extends SurfaceView implements SensorEventListener {
                 }
             }
         }
-        //return isDead;
-        return false;
+        return isDead;
     }
     private boolean isTimeOut(){
         if (timer.getTimeleftinMilliseconds()<=1000){
@@ -199,68 +213,97 @@ public class GameView extends SurfaceView implements SensorEventListener {
         }
     }
 
-   /* public void aaa(){
-        xInicialLaser=x;
-        yInicialLaser=y;
-        for(float i= xInicialLaser;i<xfinalLaser;i++){
-            xLaser=i;
-            yLaser=((xLaser*(yfinalLaser-xfinalLaser))-(xInicialLaser*yfinalLaser)+(xfinalLaser*yfinalLaser))/(yInicialLaser+xInicialLaser);
-
-            //System.out.println("X: "+ xLaser);
-            System.out.println("Y: "+ yLaser);
+    private  void isSpritesEmpty(){
+        if(sprites.isEmpty()){
+            createSprites();
+            timeCreationInMilliseconds= timer.getTimeleftinMilliseconds();
         }
-    }*/
+    }
 
+    //Enemy death animation
     public void isSpriteDead(){
         synchronized (getHolder()) {
             for (int i = sprites.size() - 1; i >= 0; i--) {
                 Sprite sprite = sprites.get(i);
                 //If we touched a sprite it will be removed
-                if (sprite.isCollision(xLaser, yLaser)) {
+                if (sprite.isCollision(xLaser1, yLaser1)) {
                     sprites.remove(sprite);
-                    temps.add(new TempSprite(temps, this, xLaser, yLaser, bmpBlood));
+                    temps.add(new TempSprite(temps, this, xLaser1, yLaser1, bmpBlood));
+                    score++;
+                    //The laser is made disappear
+                    xLaser1=xInitialLaser1=-1;
+                    yLaser1= yInitialLaser1=-1;
+                    xfinalLaser1=-10;
+                    yfinalLaser1=10;
                     //When all the enemies are killed more are generated
-                    if(sprites.isEmpty()){
-                        score++;
-                        createSprites();
-                        timeCreationInMilliseconds= timer.getTimeleftinMilliseconds();
-                    }
+                    isSpritesEmpty();
+                    break;
+                }
+                if (sprite.isCollision(xLaser2, yLaser2)) {
+                    sprites.remove(sprite);
+                    temps.add(new TempSprite(temps, this, xLaser2, yLaser2, bmpBlood));
+                    score++;
+                    //The laser is made disappear
+                    xLaser2=xInitialLaser2=-1;
+                    yLaser2=yInitialLaser2=-1;
+                    xfinalLaser2=-10;
+                    yfinalLaser2=10;
+                    //When all the enemies are killed more are generated
+                    isSpritesEmpty();
+                    break;
+                }
+                if (sprite.isCollision(xLaser3, yLaser3)) {
+                    sprites.remove(sprite);
+                    temps.add(new TempSprite(temps, this, xLaser3, yLaser3, bmpBlood));
+                    score++;
+                    //The laser is made disappear
+                    xLaser3=xInitialLaser3=0;
+                    yLaser3=yInitialLaser3=0;
+                    xfinalLaser3=-10;
+                    yfinalLaser3=10;
+                    //When all the enemies are killed more are generated
+                    isSpritesEmpty();
                     break;
                 }
             }
         }
     }
 
-    //Touch event method (death animation)
+    //Touch event method (fires the laser)
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (System.currentTimeMillis() - lastClick > 300) {
             lastClick = System.currentTimeMillis();
             float x = event.getX();
             float y = event.getY();
-            yfinalLaser=y;
-            xfinalLaser=x;
-            xInicialLaser=xHero;
-            yInicialLaser=yHero;
-            xLaser=xHero+heroWidth/2;
-            yLaser=yHero+heroHeigth/2;
-            /*synchronized (getHolder()) {
-                for (int i = sprites.size() - 1; i >= 0; i--) {
-                    Sprite sprite = sprites.get(i);
-                    //If we touched a sprite it will be removed
-                    if (sprite.isCollision(xLaser, yLaser)) {
-                        sprites.remove(sprite);
-                        temps.add(new TempSprite(temps, this, x, y, bmpBlood));
-                        //When all the enemies are killed more are generated
-                        if(sprites.isEmpty()){
-                            score++;
-                            createSprites();
-                            timeCreationInMilliseconds= timer.getTimeleftinMilliseconds();
-                        }
-                        break;
-                    }
-                }
-            }*/
+            switch (count){
+                case 0:
+                    xInitialLaser1 =xHero;
+                    yInitialLaser1 =yHero;
+                    yfinalLaser1 =y;
+                    xfinalLaser1 =x;
+                    xLaser1 =xHero+heroWidth/2;
+                    yLaser1 =yHero+heroHeigth/2;
+                    break;
+                case 1:
+                    xInitialLaser2 =xHero;
+                    yInitialLaser2 =yHero;
+                    yfinalLaser2 =y;
+                    xfinalLaser2 =x;
+                    xLaser2 =xHero+heroWidth/2;
+                    yLaser2=yHero+heroHeigth/2;
+                    break;
+                case 2:
+                    xInitialLaser3 =xHero;
+                    yInitialLaser3 =yHero;
+                    yfinalLaser3 =y;
+                    xfinalLaser3 =x;
+                    xLaser3 =xHero+heroWidth/2;
+                    yLaser3 =yHero+heroHeigth/2;
+                    break;
+            }
+            count++;
+            if(count==3) count=0;
         }
         return true;
     }

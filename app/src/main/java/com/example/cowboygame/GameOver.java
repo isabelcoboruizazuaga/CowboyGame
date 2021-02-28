@@ -17,6 +17,7 @@ import com.example.cowboygame.Models.Timer;
 import com.example.cowboygame.R;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class GameOver extends AppCompatActivity {
     private TextView tv_scoreGO,tv_timeGO;
@@ -27,6 +28,8 @@ public class GameOver extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game_over);
+
+        Random random = new Random();
 
         //Layout initialization
         tv_scoreGO=findViewById(R.id.tv_scoreGO);
@@ -71,12 +74,19 @@ public class GameOver extends AppCompatActivity {
         Game.setNextID(lastId);
 
         //New Game creation
-        Game gam=new Game(score,System.currentTimeMillis(),timer,player.getEmail());
+
         Game game= new Game(score,System.currentTimeMillis(),timer,player.getEmail());
-        long nlines = bdGame.addGame(game);
+        try{
+            long nlines = bdGame.addGame(game);
+        }catch (Exception e){
+            int randomId = random.nextInt(9999999) + 10000;
+            game.setIdGame(randomId);
+
+            long nlines = bdGame.addGame(game);
             if(nlines<=0){
-                Toast.makeText(this,"ERROR",Toast.LENGTH_LONG).show();
+                Toast.makeText(this,"Error al registrar la partida",Toast.LENGTH_LONG).show();
             }
+        }
     }
 
     public void retry(View view) {

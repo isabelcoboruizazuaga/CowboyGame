@@ -47,4 +47,8 @@ public class Game implements Serializable {
     public static void setNextID(int nextID) {
         Game.nextID = nextID;
     }
+
+    public void setIdGame(int idGame) {
+        this.idGame = idGame;
+    }
 }
